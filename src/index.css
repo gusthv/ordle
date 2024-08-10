@@ -1,0 +1,53 @@
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Slab:ital,wght@0,100..700;1,100..700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.chosenFont {
+  font-family: "Josefin Slab";
+  font-weight: 600;
+}
+
+.initialPosition {
+  transform: translateX(-100vw);
+}
+
+.transitionRight {
+  transform: translateX(0);
+}
+
+.transition-transform {
+  transition: transform 0.2s ease-in-out;
+}
+
+.transitionToGame {
+  transform: translateX(100vw);
+  transition: transform 0.6s ease-in-out;
+}
+
+.flashing {
+  animation: flash 0.5s linear infinite;
+}
+@keyframes flash {
+  0% {
+    background-color: transparent;
+  }
+  50% {
+    background-color: #62b462;
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.pulse {
+  animation: pulse 0.1s linear;
+}
+@keyframes pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.2);
+  }
+}
