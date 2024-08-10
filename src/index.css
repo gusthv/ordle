@@ -51,3 +51,14 @@
     transform: scale(1.2);
   }
 }
+.rolling {
+  animation: roll 0.6s linear infinite;
+}
+@keyframes roll {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
