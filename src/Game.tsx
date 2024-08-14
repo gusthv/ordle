@@ -216,12 +216,15 @@ const Game = () => {
         hasLoaded ? "transitionRight" : "initialPosition"
       } transition-transform ease-in-out select-none`}
     >
-      <div className="w-[312px]">
+      <div className="w-[312px] mb-6">
         <span className="w-full flex justify-between py-2">
           <p className="text-2xl chosenFont">Ordle</p>
           <Buttons />
         </span>
-        <div className="h-[2px] mb-6 bg-black" />
+        <div className="h-[2px] bg-black" />
+        <p className="mt-2 text-[14px] text-[#808080] text-center">
+          Wordle in Swedish
+        </p>
       </div>
       <p
         className={`text-2xl ${
