@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { wordBank } from "./data";
 import Keyboard from "./Keyboard";
+import Buttons from "./Buttons";
 
 const Game = () => {
   const [wonGame, setWonGame] = useState(false);
@@ -213,8 +214,15 @@ const Game = () => {
     <div
       className={`w-screen h-screen flex flex-col justify-center items-center ${
         hasLoaded ? "transitionRight" : "initialPosition"
-      } transition-transform ease-in-out`}
+      } transition-transform ease-in-out select-none`}
     >
+      <div className="w-[312px]">
+        <span className="w-full flex justify-between py-2">
+          <p className="text-2xl chosenFont">Ordle</p>
+          <Buttons />
+        </span>
+        <div className="h-[2px] mb-6 bg-black" />
+      </div>
       <p
         className={`text-2xl ${
           endGame && wonGame
@@ -226,7 +234,7 @@ const Game = () => {
       >
         {headerText}
       </p>
-      <div className="flex flex-col pt-6">
+      <div className="flex flex-col mt-6">
         {wordArray.map((row, rowIndex) => (
           <div key={rowIndex} className="flex flex-row gap-[4px]">
             {row.map((letter, boxIndex) => (

@@ -50,7 +50,7 @@ const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress, keyFeedback }) => {
   };
 
   return (
-    <div className="fixed bottom-0 mb-12">
+    <div className="mt-6">
       {characterArray.map((row, rowIndex) => (
         <div
           key={rowIndex}
