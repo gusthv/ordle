@@ -10,18 +10,20 @@ const Game = () => {
   const [wordArray, setWordArray] = useState(
     Array.from({ length: 6 }, () => Array(5).fill(""))
   );
+  const [keyFeedback, setKeyFeedback] = useState<{ [key: string]: string }>({});
   const [feedBack, setFeedBackArray] = useState(
     Array.from({ length: 6 }, () => Array(5).fill(""))
   );
 
-  const [hasLoaded, setHasLoaded] = useState(false);
+  const [wasBad, setWasBad] = useState(false);
   const [headerText, setHeaderText] = useState("LYCKA TILL!");
+  const [hasLoaded, setHasLoaded] = useState(false);
 
-  const [isMobile, setIsMobile] = useState(false);
+  // const [isMobile, setIsMobile] = useState(false);
 
   const sortedWordBank = wordBank
     .split("\n")
-    .map((word: string) => word.trim())
+    .map((word: string) => word.trim().toUpperCase())
     .filter((word: string) => word.length > 0);
 
   const [correctWord] = useState(
@@ -35,9 +37,9 @@ const Game = () => {
   }, [correctWord]);
 
   useEffect(() => {
-    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-      setIsMobile(true);
-    }
+    // if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    //   setIsMobile(true);
+    // }
 
     const timer = setTimeout(() => {
       setHasLoaded(true);
@@ -49,21 +51,83 @@ const Game = () => {
   useEffect(() => {
     if (wonGame) {
       setHeaderText("RÄTT!");
+    } else if (wasBad) {
+      setHeaderText("OGILTIGT ORD!");
+      // const newWordArray = wordArray.map((row) => [...row]);
+      // newWordArray[cursorRow][4] = "";
+      // setWordArray(newWordArray);
+      // setCursorBox(4);
+      setTimeout(() => {
+        setHeaderText("LYCKA TILL!");
+        const newWordArray = wordArray.map((row) => [...row]);
+        newWordArray[cursorRow][4] = "";
+        setWordArray(newWordArray);
+        setCursorBox(4);
+        setWasBad(false);
+      }, 250);
     }
-  }, [wonGame]);
+  }, [wonGame, wasBad]);
+
+  // const createFeedBack = (row: string[]): string[] => {
+  //   const feedBackRow = Array(5).fill("");
+  //   for (let i = 0; i < 5; i++) {
+  //     if (row[i] === correctWord[i]) {
+  //       feedBackRow[i] = "+";
+  //     } else if (correctWord.includes(row[i])) {
+  //       feedBackRow[i] = "-";
+  //     } else {
+  //       feedBackRow[i] = "0";
+  //     }
+  //   }
+  //   return feedBackRow;
+  // };
 
   const createFeedBack = (row: string[]): string[] => {
-    const feedBackRow = Array(5).fill("");
+    const feedBackRow = Array(5).fill("0");
+    const correctWordLetters = correctWord.split("");
+    const rowLetters = row.slice();
+
     for (let i = 0; i < 5; i++) {
       if (row[i] === correctWord[i]) {
         feedBackRow[i] = "+";
-      } else if (correctWord.includes(row[i])) {
+        correctWordLetters[i] = "";
+        rowLetters[i] = "";
+      }
+    }
+    for (let i = 0; i < 5; i++) {
+      if (rowLetters[i] && correctWordLetters.includes(rowLetters[i])) {
         feedBackRow[i] = "-";
-      } else {
-        feedBackRow[i] = "0";
+        const indexInCorrectWord = correctWordLetters.indexOf(rowLetters[i]);
+        correctWordLetters[indexInCorrectWord] = "";
+        rowLetters[i] = "";
       }
     }
     return feedBackRow;
+  };
+
+  const updateKeyFeedback = (row: string[], feedback: string[]) => {
+    const newKeyFeedback = { ...keyFeedback };
+
+    for (let i = 0; i < row.length; i++) {
+      const letter = row[i];
+      const feedbackForLetter = feedback[i];
+
+      if (feedbackForLetter === "+") {
+        newKeyFeedback[letter] = "green";
+      } else if (feedbackForLetter === "-") {
+        // Only update to yellow if it hasn't already been marked green
+        if (newKeyFeedback[letter] !== "green") {
+          newKeyFeedback[letter] = "yellow";
+        }
+      } else if (feedbackForLetter === "0") {
+        // Only update to grey if it hasn't already been marked yellow or green
+        if (!newKeyFeedback[letter]) {
+          newKeyFeedback[letter] = "grey";
+        }
+      }
+    }
+
+    setKeyFeedback(newKeyFeedback);
   };
 
   const SubmitFinalAttempt = () => {
@@ -71,7 +135,7 @@ const Game = () => {
       setWonGame(true);
       setEndGame(true);
     } else {
-      setHeaderText(`FEL! ORDET VAR: ${correctWord}`);
+      setHeaderText(`FEL! DET VAR: ${correctWord}`);
       setEndGame(true);
     }
   };
@@ -90,10 +154,23 @@ const Game = () => {
     }
 
     if (key === "ENTER" && cursorBox === 5) {
+      if (!sortedWordBank.includes(wordArray[cursorRow].join(""))) {
+        // setHeaderText("OGILTIGT ORD!");
+        setWasBad(true);
+
+        // const newWordArray = wordArray.map((row) => [...row]);
+        // newWordArray[cursorRow][4] = "";
+        // setWordArray(newWordArray);
+        // setCursorBox(4);
+        return;
+      }
+
       const feedBackForRow = createFeedBack(wordArray[cursorRow]);
       const newFeedBackArray = feedBack.map((row) => [...row]);
       newFeedBackArray[cursorRow] = feedBackForRow;
       setFeedBackArray(newFeedBackArray);
+
+      updateKeyFeedback(wordArray[cursorRow], feedBackForRow);
 
       if (wordArray[cursorRow].join("") === correctWord) {
         SubmitFinalAttempt();
@@ -166,6 +243,8 @@ const Game = () => {
                     ? "flashing"
                     : ""
                 } ${
+                  cursorRow === rowIndex && wasBad ? "bg-red-500 pulse" : ""
+                } ${
                   feedBack[rowIndex][boxIndex] === "+"
                     ? "bg-green-500"
                     : feedBack[rowIndex][boxIndex] === "-"
@@ -181,7 +260,8 @@ const Game = () => {
           </div>
         ))}
       </div>
-      {isMobile ? <Keyboard onKeyPress={handleKeyPress} /> : null}
+      {/* {isMobile ? <Keyboard onKeyPress={handleKeyPress} /> : null} */}
+      <Keyboard onKeyPress={handleKeyPress} keyFeedback={keyFeedback} />
     </div>
   );
 };
