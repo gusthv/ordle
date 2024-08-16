@@ -1,47 +1,14 @@
-// interface KeyboardProps {
-//   onKeyPress: (key: string) => void;
-// }
-
-// const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress }) => {
-//   const characterArray = ["QWERTYUIOPÅ", "ASDFGHJKLÖÄ", "0ZXCVBNM1"];
-
-//   const handleKeyboardPress = (e: React.MouseEvent<HTMLButtonElement>) => {
-//     const char = e.currentTarget.textContent || "";
-//     onKeyPress(char);
-//   };
-
-//   return (
-//     <div className="fixed bottom-0 mb-12">
-//       {characterArray.map((row, rowIndex) => (
-//         <div
-//           key={rowIndex}
-//           className="flex flex-row justify-center items-center gap-1 text-[0.8rem]"
-//         >
-//           {row.split("").map((char, charIndex) => (
-//             <button
-//               key={charIndex}
-//               className={`${
-//                 char === "0" || char === "1" ? "w-14 h-6" : "w-6 h-6"
-//               } mt-1 border-2 font-bold`}
-//               onClick={handleKeyboardPress}
-//             >
-//               {char === "0" ? "ENTER" : char === "1" ? "DEL" : char}
-//             </button>
-//           ))}
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default Keyboard;
-
 interface KeyboardProps {
   onKeyPress: (key: string) => void;
   keyFeedback: { [key: string]: string };
+  isMobile: boolean;
 }
 
-const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress, keyFeedback }) => {
+const Keyboard: React.FC<KeyboardProps> = ({
+  onKeyPress,
+  keyFeedback,
+  isMobile,
+}) => {
   const characterArray = ["QWERTYUIOPÅ", "ASDFGHJKLÖÄ", "0ZXCVBNM1"];
 
   const handleKeyboardPress = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -50,18 +17,18 @@ const Keyboard: React.FC<KeyboardProps> = ({ onKeyPress, keyFeedback }) => {
   };
 
   return (
-    <div className="mt-6">
+    <div className={`${!isMobile ? "w-[312px]" : "w-[95%]"} mt-6`}>
       {characterArray.map((row, rowIndex) => (
         <div
           key={rowIndex}
-          className="flex flex-row justify-center items-center gap-1 text-[0.8rem]"
+          className="flex justify-center items-center gap-1 text-[0.8rem]"
         >
           {row.split("").map((char, charIndex) => (
             <button
               key={charIndex}
               className={`${
-                char === "0" || char === "1" ? "w-14 h-6" : "w-6 h-6"
-              } mt-1 border-2 font-bold ${
+                char === "0" || char === "1" ? "w-16 h-14" : "w-10 h-14"
+              } flex flex-grow justify-center items-center mt-1 border-2 font-bold ${
                 keyFeedback[char] === "green"
                   ? "bg-green-500"
                   : keyFeedback[char] === "yellow"

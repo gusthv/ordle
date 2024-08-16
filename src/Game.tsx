@@ -20,7 +20,7 @@ const Game = () => {
   const [headerText, setHeaderText] = useState("LYCKA TILL!");
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  // const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   const sortedWordBank = wordBank
     .split("\n")
@@ -38,9 +38,9 @@ const Game = () => {
   }, [correctWord]);
 
   useEffect(() => {
-    // if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-    //   setIsMobile(true);
-    // }
+    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+      setIsMobile(true);
+    }
 
     const timer = setTimeout(() => {
       setHasLoaded(true);
@@ -272,7 +272,11 @@ const Game = () => {
         ))}
       </div>
       {/* {isMobile ? <Keyboard onKeyPress={handleKeyPress} /> : null} */}
-      <Keyboard onKeyPress={handleKeyPress} keyFeedback={keyFeedback} />
+      <Keyboard
+        onKeyPress={handleKeyPress}
+        keyFeedback={keyFeedback}
+        isMobile={isMobile}
+      />
     </div>
   );
 };
