@@ -4,7 +4,7 @@ import Auth from "./Auth";
 
 const Handler = () => {
   return (
-    <div className="w-screen h-screen overflow-hidden">
+    <div className="w-[100dvh] h-[100dvh] overflow-hidden">
       <Router>
         <Routes>
           <Route path="/" element={<Auth />} />
