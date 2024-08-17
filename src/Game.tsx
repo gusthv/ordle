@@ -418,6 +418,8 @@ const Game: FC = () => {
                 : endGame && !wonGame
                 ? "text-red-500 font-bold"
                 : ""
+            } ${
+              headerText === "OGILTIGT ORD!" ? "text-red-500" : ""
             } chosenFont`}
           >
             {headerText}
