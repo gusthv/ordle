@@ -22,7 +22,7 @@ const Auth = () => {
 
   return (
     <div
-      className={`w-screen h-screen flex justify-center items-center ${
+      className={`w-[100%] h-[100%] flex justify-center items-center ${
         isTransitioning ? "transitionToGame" : ""
       } ease-in-out chosenFont`}
     >
