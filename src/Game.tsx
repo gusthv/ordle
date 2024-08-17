@@ -88,8 +88,6 @@ const Game: FC = () => {
 
     // generateStatistics();
 
-    window.scrollTo(0, 1);
-
     const timer = setTimeout(() => {
       setHasLoaded(true);
     }, 10);

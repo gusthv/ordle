@@ -1,8 +1,12 @@
+import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Game from "./Game";
 import Auth from "./Auth";
 
 const Handler = () => {
+  useEffect(() => {
+    window.scrollTo(0, 1);
+  }, []);
   return (
     <div className="w-[100dvw] h-[100dvh] overflow-hidden">
       <Router>
