@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { Context } from "./Game";
 
 const Buttons = () => {
-  const { setShowStatistics } = useContext(Context);
+  const { setShowStatistics, setShowHelp } = useContext(Context);
 
   const [hoveringStatistics, setHoveringStatistics] = useState(false);
   const [hoveringUser, setHoveringUser] = useState(false);
@@ -16,6 +16,7 @@ const Buttons = () => {
         className="w-6 h-6 cursor-pointer"
         viewBox="0 0 24 24"
         fill="none"
+        onClick={() => setShowHelp(true)}
       >
         <path
           d="M9 9.00001C9.00011 8.45004 9.15139 7.91068 9.43732 7.44088C9.72325 6.97108 10.1328 6.58891 10.6213 6.33616C11.1097 6.08341 11.6583 5.96979 12.2069 6.00773C12.7556 6.04566 13.2833 6.23369 13.7323 6.55126C14.1813 6.86883 14.5344 7.30372 14.7529 7.8084C14.9715 8.31308 15.0471 8.86813 14.9715 9.41288C14.8959 9.95763 14.6721 10.4711 14.3244 10.8972C13.9767 11.3234 13.5185 11.6457 13 11.829C12.7074 11.9325 12.4541 12.1241 12.275 12.3775C12.0959 12.6309 11.9998 12.9337 12 13.244V14.5"

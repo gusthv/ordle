@@ -14,11 +14,15 @@ import { useNavigate } from "react-router-dom";
 type ContextType = {
   showStatistics: boolean;
   setShowStatistics: Dispatch<SetStateAction<boolean>>;
+  showHelp: boolean;
+  setShowHelp: Dispatch<SetStateAction<boolean>>;
 };
 
 export const Context = createContext<ContextType>({
   showStatistics: false,
   setShowStatistics: () => {},
+  showHelp: false,
+  setShowHelp: () => {},
 });
 
 type wordProps = {
@@ -51,7 +55,12 @@ const Game: FC = () => {
       ? JSON.parse(localStorage.getItem("words")!)
       : []
   );
-  const [playedGames, setPlayedGames] = useState(0);
+  // const [isNew, setIsNew] = useState<boolean>(
+  //   localStorage.getItem("isNew") !== null
+  //     ? JSON.parse(localStorage.getItem("isNew")!)
+  //     : false
+  // );
+  const [playedGames, setPlayedGames] = useState(null);
   const [winPercentage, setWinPercentage] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
@@ -59,6 +68,7 @@ const Game: FC = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [showStatistics, setShowStatistics] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   const sortedWordBank = wordBank
     .split("\n")
@@ -119,6 +129,12 @@ const Game: FC = () => {
     setCurrentStreak(currentStreak);
     setMaxStreak(maxStreak);
   };
+
+  useEffect(() => {
+    if (playedGames === 0) {
+      setShowHelp(true);
+    }
+  }, [playedGames]);
 
   useEffect(() => {
     if (wonGame) {
@@ -310,9 +326,96 @@ const Game: FC = () => {
       value={{
         showStatistics,
         setShowStatistics,
+        showHelp,
+        setShowHelp,
       }}
     >
       <div className="w-[100%] h-[100%]">
+        <div
+          className={`${
+            showHelp ? "flex" : "hidden"
+          } w-[100%] h-[100%] absolute flex flex-col justify-center items-center`}
+        >
+          <div
+            className="w-[100%] h-[100%] absolute z-40 backdrop-blur-sm"
+            onClick={() => {
+              showHelp ? setShowHelp(false) : "";
+            }}
+          />
+          {/* w-[312px] */}
+          <span
+            className={`${
+              isMobile ? "w-[80%]" : "w-[312px]"
+            } flex flex-col justify-center items-center bg-[#eeffee] border-2 shadow-2xl rounded-md z-50`}
+          >
+            <span className="w-full flex flex-row justify-end">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                onMouseEnter={() => setHoveringClose(true)}
+                onMouseLeave={() => setHoveringClose(false)}
+                onClick={() => setShowHelp(false)}
+                className="m-1 cursor-pointer"
+              >
+                <path
+                  d="M6.4 19L5 17.6L10.6 12L5 6.4L6.4 5L12 10.6L17.6 5L19 6.4L13.4 12L19 17.6L17.6 19L12 13.4L6.4 19Z"
+                  fill={hoveringClose ? "#62B462" : "#000000"}
+                />
+              </svg>
+            </span>
+            <span className="w-full flex flex-col justify-start px-1 pb-1 chosenFont">
+              <p className="text-xl font-bold">HOW TO PLAY</p>
+              <p className="text-[18px] text-[#808080]">
+                Gissa ordet på 6 försök.
+              </p>
+              <span className="w-full text-[14px] mt-4 flex flex-col justify-start">
+                <p>● Enbart giltiga 5-bokstävers ord.</p>
+                <p>● Färger på rutor efter gissningens precision.</p>
+              </span>
+            </span>
+            <div className="w-full h-[2px] bg-black" />
+            <span className="w-full flex flex-col justify-start p-1 chosenFont">
+              <p>Exempel</p>
+              <span>
+                <span className="flex flex-row items-center mt-2 mb-1 gap-1">
+                  <p className="px-2 bg-green-500 border-2 border-[black]">T</p>
+                  <p className="px-2 border-2 border-[black]">R</p>
+                  <p className="px-2 border-2 border-[black]">Ä</p>
+                  <p className="px-2 border-2 border-[black]">S</p>
+                  <p className="px-2 border-2 border-[black]">K</p>
+                </span>
+                <p>"T" är i ordet och är på rätt plats.</p>
+              </span>
+              <span>
+                <span className="flex flex-row items-center mt-2 mb-1 gap-1">
+                  <p className="px-2 border-2 border-[black]">K</p>
+                  <p className="px-2 border-2 bg-yellow-500 border-[black]">
+                    I
+                  </p>
+                  <p className="px-2 border-2 border-[black]">S</p>
+                  <p className="px-2 border-2 border-[black]">T</p>
+                  <p className="px-2 border-2 border-[black]">A</p>
+                </span>
+                <p>"I" finns i ordet men är på fel plats.</p>
+              </span>
+              <span>
+                <span className="flex flex-row items-center mt-2 mb-1 gap-1">
+                  <p className="px-2 border-2 border-[black]">B</p>
+                  <p className="px-2 border-2 border-[black]">Ä</p>
+                  <p className="px-2 border-2 border-[black]">S</p>
+                  <p className="px-2 border-2 border-[black]">T</p>
+                  <p className="px-2 border-2 bg-gray-500 border-[black]">A</p>
+                </span>
+                <p>"A" finns ej i ordet.</p>
+              </span>
+              <p className="text-[14px] mt-4 text-[#808080] chosenFont">
+                Nytt ord dagligen varje midnatt.
+              </p>
+            </span>
+          </span>
+        </div>
         <div
           className={`${
             showStatistics ? "flex" : "hidden"
@@ -357,7 +460,7 @@ const Game: FC = () => {
                 <p className="text-[14px] text-[#808080]">Played</p>
               </span>
               <span className="flex flex-col items-center">
-                <p>{winPercentage}</p>
+                <p>{winPercentage ? winPercentage : "0"}</p>
                 <p className="text-[14px] text-[#808080]">Win %</p>
               </span>
               <span className="flex flex-col items-center">
@@ -408,7 +511,7 @@ const Game: FC = () => {
             </span>
             <div className="h-[2px] bg-black" />
             <p className="mt-2 text-[14px] text-[#808080] text-center">
-              Wordle in Swedish
+              Wordle på Svenska
             </p>
           </div>
           <p
