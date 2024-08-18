@@ -60,7 +60,7 @@ const Game: FC = () => {
   //     ? JSON.parse(localStorage.getItem("isNew")!)
   //     : false
   // );
-  const [playedGames, setPlayedGames] = useState(null);
+  const [playedGames, setPlayedGames] = useState<number | null>(null);
   const [winPercentage, setWinPercentage] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
