@@ -11,7 +11,7 @@ const Keyboard: React.FC<KeyboardProps> = ({
   keyFeedback,
   isMobile,
 }) => {
-  const characterArray = ["QWERTYUIOPÅ", "ASDFGHJKLÖÄ", "0ZXCVBNM1"];
+  const characterArray = ["QWERTYUIOPÅ", "ASDFGHJKLÖÄ", "1ZXCVBNM0"];
 
   const [pressedKey, setPressedKey] = useState<string | null>(null);
 

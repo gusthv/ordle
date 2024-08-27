@@ -1,5 +1,22 @@
-import { useState } from "react";
+import {
+  // FC,
+  // Dispatch,
+  // SetStateAction,
+  useState,
+  // useEffect,
+  // createContext,
+} from "react";
 import { useNavigate } from "react-router-dom";
+
+// type authContextType = {
+//   currentUsername: string;
+//   setCurrentUsername: Dispatch<SetStateAction<string>>;
+// };
+
+// export const authContext = createContext<authContextType>({
+//   currentUsername: "",
+//   setCurrentUsername: () => {},
+// });
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -13,11 +30,82 @@ const Auth = () => {
   const [toggleAuth, setToggleAuth] = useState(false);
   const [authAction, setAuthAction] = useState("");
 
+  // const [currentUsername, setCurrentUsername] = useState<string | null>("");
+
   const handleClick = () => {
     setIsTransitioning(true);
     setTimeout(() => {
       navigate("/game");
     }, 600);
+  };
+
+  // useEffect(() => {
+  //   console.log(currentUsername);
+  // }, [currentUsername]);
+
+  const handleAuth = async () => {
+    if (authAction === "LOGIN") {
+      if (!username || !password)
+        return console.error("USERNAME OR PASSWORD IS MISSING");
+      try {
+        const response = await fetch("http://localhost:4000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          const token = localStorage.getItem("token");
+          if (token) {
+            if (username) {
+              // setCurrentUsername(username);
+              localStorage.setItem("username", username);
+              localStorage.setItem("token", data.token);
+              handleClick();
+            }
+          }
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("ERROR", error);
+      }
+    } else if (authAction === "REGISTER") {
+      if (!username || !password)
+        return console.error("USERNAME OR PASSWORD IS MISSING");
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          const token = localStorage.getItem("token");
+          if (token) {
+            if (username) {
+              // setCurrentUsername(username);
+              localStorage.setItem("username", username);
+              localStorage.setItem("token", data.token);
+              handleClick();
+            }
+          }
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("ERROR", error);
+      }
+    }
   };
 
   return (
@@ -28,6 +116,9 @@ const Auth = () => {
     >
       <div className="flex flex-col justify-center items-center gap-6">
         <h1 className="text-[5rem]">Ordle</h1>
+        <p className="mt-[-44px] text-[14px] text-[#808080] text-center">
+          Wordle på Svenska
+        </p>
         <span
           className={`${toggleAuth ? "hidden" : "flex"} flex flex-col gap-6`}
         >
@@ -121,7 +212,10 @@ const Auth = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <p className="mt-[8px] p-4 bg-transparent hover:text-[#62B462] text-center cursor-pointer">
+          <p
+            className="mt-[8px] p-4 bg-transparent hover:text-[#62B462] text-center cursor-pointer"
+            onClick={handleAuth}
+          >
             {authAction}
           </p>
         </span>

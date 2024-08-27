@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Game from "./Game";
 import Auth from "./Auth";
+import Game from "./Game";
 
 const Handler = () => {
   useEffect(() => {
+    // localStorage.removeItem("username");
     window.scrollTo(0, 1);
   }, []);
   return (

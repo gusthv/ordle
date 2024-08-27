@@ -4,6 +4,7 @@ import {
   SetStateAction,
   useState,
   useEffect,
+  // useContext,
   createContext,
 } from "react";
 import { wordBank } from "./data";
@@ -11,11 +12,15 @@ import Keyboard from "./Keyboard";
 import Buttons from "./Buttons";
 import { useNavigate } from "react-router-dom";
 
+// import { authContext } from "./Auth";
+
 type ContextType = {
   showStatistics: boolean;
   setShowStatistics: Dispatch<SetStateAction<boolean>>;
   showHelp: boolean;
   setShowHelp: Dispatch<SetStateAction<boolean>>;
+  showAccount: boolean;
+  setShowAccount: Dispatch<SetStateAction<boolean>>;
 };
 
 export const Context = createContext<ContextType>({
@@ -23,15 +28,41 @@ export const Context = createContext<ContextType>({
   setShowStatistics: () => {},
   showHelp: false,
   setShowHelp: () => {},
+  showAccount: false,
+  setShowAccount: () => {},
 });
 
 type wordProps = {
   word: string;
+  tries: number;
   success: boolean;
   date: string;
 };
 
 const Game: FC = () => {
+  // const { currentUsername, setCurrentUsername } = useContext(authContext);
+  const [currentUser, setCurrentUser] = useState<string>(
+    localStorage.getItem("username") !== null
+      ? localStorage.getItem("username")!
+      : ""
+  );
+
+  const [hasCheckedStatistics, setHasCheckedStatistics] = useState<
+    boolean | null
+  >(null);
+
+  useEffect(() => {
+    if (currentUser === "" || currentUser === null) return;
+    console.log(currentUser);
+    fetchStatistics();
+  }, [currentUser]);
+
+  // const [fetchedWords, setFetchedWords] = useState<wordProps[]>([]);
+  // useEffect(() => {
+  //   generateStatistics();
+  //   console.log("FETCHED WORDS", fetchedWords);
+  // }, [fetchedWords]);
+
   const [wonGame, setWonGame] = useState(false);
   const [endGame, setEndGame] = useState(false);
   const [cursorRow, setCursorRow] = useState(0);
@@ -55,6 +86,7 @@ const Game: FC = () => {
       ? JSON.parse(localStorage.getItem("words")!)
       : []
   );
+  const [fetchedWords, setFetchedWords] = useState<wordProps[]>([]);
   // const [isNew, setIsNew] = useState<boolean>(
   //   localStorage.getItem("isNew") !== null
   //     ? JSON.parse(localStorage.getItem("isNew")!)
@@ -69,6 +101,7 @@ const Game: FC = () => {
 
   const [showStatistics, setShowStatistics] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [showAccount, setShowAccount] = useState(false);
 
   const sortedWordBank = wordBank
     .split("\n")
@@ -82,8 +115,16 @@ const Game: FC = () => {
   );
 
   useEffect(() => {
+    console.log("FETCHED:", fetchedWords);
+  }, [fetchedWords]);
+
+  useEffect(() => {
     console.log(correctWord);
   }, [correctWord]);
+
+  useEffect(() => {
+    generateStatistics();
+  }, [fetchedWords]);
 
   useEffect(() => {
     console.log(words);
@@ -105,36 +146,91 @@ const Game: FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const generateStatistics = () => {
-    const playedGames = words.length;
-    const winPercentage = Math.round(
-      (words.filter((word) => word.success).length / playedGames) * 100
-    );
-    let currentStreak = 0;
-    let maxStreak = 0;
-
-    for (let i = 0; i < words.length; i++) {
-      if (words[i].success) {
-        currentStreak++;
-        if (currentStreak > maxStreak) {
-          maxStreak = currentStreak;
-        }
-      } else {
-        currentStreak = 0;
-      }
+  useEffect(() => {
+    if (hasCheckedStatistics === null) return;
+    if (fetchedWords.length > 0 && currentUser !== "") {
+      generateStatistics();
     }
-
-    setPlayedGames(playedGames);
-    setWinPercentage(winPercentage);
-    setCurrentStreak(currentStreak);
-    setMaxStreak(maxStreak);
-  };
+  }, [hasCheckedStatistics]);
 
   useEffect(() => {
+    console.log("PLAYED GAMES", playedGames);
+    console.log("WIN PERCENTAGE", winPercentage);
+    console.log("CURRENT STREAK", currentStreak);
+    console.log("MAX STREAK", maxStreak);
+  }, [playedGames, winPercentage, currentStreak, maxStreak]);
+
+  const generateStatistics = () => {
+    if (fetchedWords.length > 0 && currentUser !== "") {
+      console.log("fetching logged in stats");
+      const playedGames = fetchedWords.length;
+      const winPercentage = Math.round(
+        (fetchedWords.filter((word) => word.success).length / playedGames) * 100
+      );
+      let currentStreak = 0;
+      let maxStreak = 0;
+
+      for (let i = 0; i < fetchedWords.length; i++) {
+        if (fetchedWords[i].success) {
+          currentStreak++;
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+          }
+        } else {
+          currentStreak = 0;
+        }
+      }
+      // console.log(fetchedWords.length);
+
+      setPlayedGames(playedGames);
+      setWinPercentage(winPercentage);
+      setCurrentStreak(currentStreak);
+      setMaxStreak(maxStreak);
+      setHasCheckedStatistics(true);
+      return;
+    } else {
+      console.log("fetching localstorage stats");
+      const playedGames = words.length;
+      const winPercentage = Math.round(
+        (words.filter((word) => word.success).length / playedGames) * 100
+      );
+      let currentStreak = 0;
+      let maxStreak = 0;
+
+      for (let i = 0; i < words.length; i++) {
+        if (words[i].success) {
+          currentStreak++;
+          if (currentStreak > maxStreak) {
+            maxStreak = currentStreak;
+          }
+        } else {
+          currentStreak = 0;
+        }
+      }
+
+      setPlayedGames(playedGames);
+      setWinPercentage(winPercentage);
+      setCurrentStreak(currentStreak);
+      setMaxStreak(maxStreak);
+      setHasCheckedStatistics(true);
+      return;
+    }
+  };
+
+  // useEffect(() => {
+  //   if (playedGames === 0) {
+  //     setShowHelp(true);
+  //   }
+  // }, [playedGames]);
+  useEffect(() => {
+    // SPAGHETTI DELUXE WTF
+    if (hasCheckedStatistics === null) return;
     if (playedGames === 0) {
       setShowHelp(true);
+    } else {
+      setShowHelp(false);
     }
-  }, [playedGames]);
+  }, [hasCheckedStatistics]);
 
   useEffect(() => {
     if (wonGame) {
@@ -143,10 +239,12 @@ const Game: FC = () => {
         ...prevWords,
         {
           word: correctWord,
+          tries: cursorRow + 1,
           success: true,
           date: new Date().toLocaleDateString(),
         },
       ]);
+      saveStatistics();
     } else if (wasBad) {
       setHeaderText("OGILTIGT ORD!");
       // const newWordArray = wordArray.map((row) => [...row]);
@@ -239,10 +337,12 @@ const Game: FC = () => {
         ...prevWords,
         {
           word: correctWord,
+          tries: cursorRow + 1,
           success: false,
           date: new Date().toLocaleDateString(),
         },
       ]);
+      saveStatistics();
       setEndGame(true);
     }
   };
@@ -321,6 +421,138 @@ const Game: FC = () => {
 
   const navigate = useNavigate();
 
+  const saveStatistics = async () => {
+    const token = localStorage.getItem("token");
+    if (!currentUser && !token) return;
+    try {
+      const response = await fetch(
+        "http://localhost:4000/api/ordle/saveEvents",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            word: correctWord,
+            tries: cursorRow + 1,
+            success: wonGame,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        fetchStatistics();
+      } else {
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error("ERROR", error);
+    }
+  };
+
+  const fetchStatistics = async () => {
+    if (currentUser === "") return;
+    try {
+      const response = await fetch(
+        `http://localhost:4000/api/ordle/fetchStatistics?requestedUsername=${currentUser}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        console.log(data);
+        setFetchedWords(data.statistics.words);
+      } else {
+        console.error(data.message);
+      }
+    } catch (error) {
+      console.error("ERROR", error);
+    }
+  };
+
+  const [authAction, setAuthAction] = useState<string | null>("");
+  const [username, setUsername] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  useEffect(() => {
+    if (authAction === "") return;
+    handleAuth(authAction);
+  }, [authAction]);
+  const handleAuth = async (authAction: string | null) => {
+    if (authAction === "LOGIN") {
+      if (!username || !password)
+        return console.error("USERNAME OR PASSWORD IS MISSING");
+      try {
+        const response = await fetch("http://localhost:4000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          const token = localStorage.getItem("token");
+          if (token) {
+            if (username) {
+              // setCurrentUsername(username);
+              localStorage.setItem("username", username);
+              setCurrentUser(username);
+              setShowAccount(false);
+              localStorage.setItem("token", data.token);
+              // handleClick();
+            }
+          }
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("ERROR", error);
+      }
+    } else if (authAction === "REGISTER") {
+      if (!username || !password)
+        return console.error("USERNAME OR PASSWORD IS MISSING");
+      try {
+        const response = await fetch(
+          "http://localhost:4000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username, password }),
+          }
+        );
+        const data = await response.json();
+        if (response.ok) {
+          localStorage.setItem("token", data.token);
+          const token = localStorage.getItem("token");
+          if (token) {
+            if (username) {
+              // setCurrentUsername(username);
+              localStorage.setItem("username", username);
+              setCurrentUser(username);
+              setShowAccount(false);
+              localStorage.setItem("token", data.token);
+              // handleClick();
+            }
+          }
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error("ERROR", error);
+      }
+    }
+  };
+
   return (
     <Context.Provider
       value={{
@@ -328,12 +560,118 @@ const Game: FC = () => {
         setShowStatistics,
         showHelp,
         setShowHelp,
+        showAccount,
+        setShowAccount,
       }}
     >
       <div className="w-[100%] h-[100%]">
         <div
           className={`${
-            showHelp ? "flex" : "hidden"
+            showAccount === true ? "flex" : "hidden"
+          } w-[100%] h-[100%] absolute flex flex-col justify-center items-center`}
+        >
+          <div
+            className="w-[100%] h-[100%] absolute z-40 backdrop-blur-sm"
+            onClick={() => {
+              showAccount ? setShowAccount(false) : "";
+            }}
+          />
+          {/* w-[312px] */}
+          <span
+            className={`${
+              isMobile ? "w-[80%]" : "w-[312px]"
+            } flex flex-col justify-center items-center bg-[#eeffee] border-2 shadow-2xl rounded-md z-50`}
+          >
+            <span className="w-full flex flex-row justify-end">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                onMouseEnter={() => setHoveringClose(true)}
+                onMouseLeave={() => setHoveringClose(false)}
+                onClick={() => setShowAccount(false)}
+                className="m-1 cursor-pointer"
+              >
+                <path
+                  d="M6.4 19L5 17.6L10.6 12L5 6.4L6.4 5L12 10.6L17.6 5L19 6.4L13.4 12L19 17.6L17.6 19L12 13.4L6.4 19Z"
+                  fill={hoveringClose ? "#62B462" : "#000000"}
+                />
+              </svg>
+            </span>
+            <span className="w-full flex flex-col items-center px-1 pb-6 chosenFont">
+              <p className="text-xl font-bold">
+                Välkommen, {currentUser ? currentUser : "GÄST"}!
+              </p>
+              <span
+                onClick={() => {
+                  localStorage.removeItem("words");
+                  localStorage.removeItem("token");
+                  localStorage.removeItem("username");
+                  setCurrentUser("");
+                  setFetchedWords([]);
+                  // setPlayedGames(null);
+                  // setWinPercentage(0);
+                  // setCurrentStreak(0);
+                  // setMaxStreak(0);
+                  setWords([]);
+                  /*  */
+                  // navigate("/");
+                  /*  */
+                }}
+                className={`${
+                  currentUser !== "" ? "flex" : "hidden"
+                } flex-col justify-center items-center mt-4 p-2 font-bold border-2 rounded-md bg-[#eeffee] hover:bg-[#62B462] cursor-pointer`}
+              >
+                <p>LOGGA UT</p>
+                <p className="text-[12px] mt-2 text-[#808080]">
+                  {"(RENSAR EXISTERANDE HISTORIK)"}
+                </p>
+              </span>
+              <span
+                className={`${
+                  currentUser === "" ? "flex" : "hidden"
+                } flex-col items-center gap-2 mt-6`}
+              >
+                <input
+                  className="p-4 bg-transparent text-center"
+                  type="string"
+                  placeholder="USERNAME"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <input
+                  className="p-4 bg-transparent text-center"
+                  type="password"
+                  placeholder="PASSWORD"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <span className="flex flex-row items-center gap-2 mt-[8px]">
+                  <p
+                    className="bg-transparent hover:text-[#62B462] p-2 border-2 rounded-md text-center cursor-pointer"
+                    onClick={() => setAuthAction("LOGIN")}
+                  >
+                    LOGIN
+                  </p>
+                  <p
+                    className="bg-transparent hover:text-[#62B462] p-2 border-2 rounded-md text-center cursor-pointer"
+                    onClick={() => setAuthAction("REGISTER")}
+                  >
+                    REGISTER
+                  </p>
+                </span>
+                <p className="text-[12px] text-[#808080]">
+                  {"(RENSAR EXISTERANDE HISTORIK)"}
+                </p>
+              </span>
+            </span>
+            {/* <div className="w-full h-[2px] bg-black" /> */}
+          </span>
+        </div>
+        <div
+          className={`${
+            showHelp === true ? "flex" : "hidden"
           } w-[100%] h-[100%] absolute flex flex-col justify-center items-center`}
         >
           <div
@@ -481,12 +819,26 @@ const Game: FC = () => {
             <p className="w-full flex p-1 text-xl chosenFont">WORDS</p>
             <span className="w-full chosenFont h-[200px] overflow-y-scroll">
               <span>
-                {words.reverse().map((word, index) => (
+                {currentUser !== "" && fetchedWords.length > 0
+                  ? fetchedWords.reverse().map((word, index) => (
+                      <p key={index} className="p-1">
+                        {word.date.split("T")[0]} - {word.word} -{" "}
+                        {word.success ? "RÄTT!" : "FEL!"}
+                      </p>
+                    ))
+                  : words.reverse().map((word, index) => (
+                      <p key={index} className="p-1">
+                        {word.date} - {word.word} -{" "}
+                        {word.success ? "RÄTT!" : "FEL!"}
+                      </p>
+                    ))}
+
+                {/* {words.reverse().map((word, index) => (
                   <p key={index} className="p-1">
                     {word.date} - {word.word} -{" "}
                     {word.success ? "RÄTT!" : "FEL!"}
                   </p>
-                ))}
+                ))} */}
               </span>
             </span>
             {/* <div className="w-full h-[312px] mt-6 bg-green-500" /> */}
@@ -510,9 +862,6 @@ const Game: FC = () => {
               <Buttons />
             </span>
             <div className="h-[2px] bg-black" />
-            <p className="mt-2 text-[14px] text-[#808080] text-center">
-              Wordle på Svenska
-            </p>
           </div>
           <p
             className={`text-2xl ${
@@ -561,7 +910,6 @@ const Game: FC = () => {
               </div>
             ))}
           </div>
-          {/* {isMobile ? <Keyboard onKeyPress={handleKeyPress} /> : null} */}
           <Keyboard
             onKeyPress={handleKeyPress}
             keyFeedback={keyFeedback}
